@@ -127,7 +127,7 @@ public class Maquina extends MaquinaVirtual{
             else if (InstrType == 8)
             {
                     // Load
-                    Reg[RegDest] = DataMemory[RegAddrMemory];
+                    Reg[RegDest] = dadosp[RegAddrMemory];
             }
             else if (InstrType == 9)
             {
