@@ -27,7 +27,7 @@ public class Maquina extends MaquinaVirtual{
     
 
     // Memoria de programa            
-    public int[] ProgMemory = {0b1000000000000000, 0b1000000100000001, 0b0001000000010010, 0b1001001000000010};
+     public int[] ProgMemory = {0b1000000000000000, 0b1000000100000001, 0b0001000000010010, 0b1001001000000010};
     // Memoria de dados
     //public int[] DataMemory = {1, 2, 0, 0, 0, 0, 0, 0};
 
@@ -42,8 +42,8 @@ public class Maquina extends MaquinaVirtual{
     public int RegSourceB;
     public int RegDest;
     public int RegAddrMemory;
-    ArrayList dadosp = new ArrayList();
-    ArrayList dadosd = new ArrayList();
+    ArrayList<String> dadosp = new ArrayList<String>();
+    ArrayList<String> dadosd = new ArrayList<String>();
 
     Maquina() throws FileNotFoundException, IOException{
         this.ProgramMemory = new File("ProgMemory.txt");
@@ -56,45 +56,32 @@ public class Maquina extends MaquinaVirtual{
 		Reg[i] = 0;
 	}
     }
+    private int get_instruction_type(int pc){
+        String instruction = (String)dadosp.get(pc);
+        String subsInst= instruction.substring(0, 3);
+        if(subsInst == "0001")
+        {
+            
+        }
+        else if(subsInst =="0011")
+        {
+            
+        }
+        else if()
+        return 0;
+    }
     
-    private void CarregaArquivos() throws FileNotFoundException, IOException{
-        
-        ProgramMemory.createNewFile(); // cria o arquivo se ainda não existir
+    private ArrayList arrayInstruction() throws FileNotFoundException, IOException{
+        // cria o arquivo se ainda não existir
         InputStream isp = new FileInputStream(ProgramMemory);
         InputStreamReader isrp = new InputStreamReader(isp);
         BufferedReader brp = new BufferedReader(isrp);
-        
-        DataMemory.createNewFile(); // cria o arquivo se ainda não existir
-        InputStream isd = new FileInputStream(ProgramMemory);
-        InputStreamReader isrd = new InputStreamReader(isd);
-        BufferedReader brd = new BufferedReader(isrd);
-        
-        String linhap = null;
-        String linhad = null;
-
-        linhap = brp.readLine();
-        
-        if (linhap != null) { //Se o arquivo não estiver vazio, entra no if
-
-                while (linhap != null) {
-                    
-                    dadosp.add(linhap);
-                    linhap = brp.readLine();
-                    
-                }
-                
-        }
-        
-        if (linhad != null) { //Se o arquivo não estiver vazio, entra no if
-
-                while (linhad != null) {
-                    
-                    dadosd.add(linhad);
-                    linhad = brd.readLine();
-                    
-                }
-                
-        }
+        String linhap = brp.readLine();
+        while (linhap != null) {
+                  dadosp.add(linhap);
+                  linhap = brp.readLine();  
+        }        
+        return dadosp;
     }
     // Prototipos
     public void decode()

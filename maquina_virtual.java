@@ -54,7 +54,7 @@ Detalhes do set de instrução
 			(0000 >> end. Reg )
  	 	 	 
 ********************************************************************************/
-
+    
 // Memoria de programa            
 private int[] ProgMemory = {0b1000000000000000, 0b1000000100000001, 0b0001000000010010, 0b1001001000000010};
 // Memoria de dados
