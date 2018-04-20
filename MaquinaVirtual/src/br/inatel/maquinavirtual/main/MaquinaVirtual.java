@@ -25,8 +25,7 @@ public class MaquinaVirtual{
     
     
 
-    // Memoria de programa            
-     public int[] ProgMemory = {0b1000000000000000, 0b1000000100000001, 0b0001000000010010, 0b1001001000000010};
+    // Memoria de programa           
     // Memoria de dados
     //public int[] DataMemory = {1, 2, 0, 0, 0, 0, 0, 0};
 
@@ -34,7 +33,7 @@ public class MaquinaVirtual{
     // Registradores
     public int PC;
     public int i;
-    public int[] Reg = new int[10];
+    public int[] Reg = new int[16];
     public int Instr;
     public int InstrType;
     public int RegSourceA;
@@ -42,7 +41,8 @@ public class MaquinaVirtual{
     public int RegDest;
     public int RegAddrMemory;
     ArrayList<String> dadosp = new ArrayList<String>();
-    ArrayList<String> dadosd = new ArrayList<String>();
+    public int[] dadosd = new int[256];
+    
 
     public void get_instruction_type(int PC){
         String instrucao = dadosp.get(PC);
@@ -52,13 +52,14 @@ public class MaquinaVirtual{
     
     public void arrayInstruction() throws IOException{
         // cria o arquivo se ainda não existir
-        InputStream isp = new FileInputStream("arquitetura.txt");
+        InputStream isp = new FileInputStream("programa.txt");
         InputStreamReader isrp = new InputStreamReader(isp);
         BufferedReader brp = new BufferedReader(isrp);
         String linhap;
         while ((linhap = brp.readLine()) != null)  {
                   dadosp.add(linhap);  
-        }        
+        }
+        
     }
     // Prototipos
     public void decode()
@@ -81,6 +82,7 @@ public class MaquinaVirtual{
                     RegDest = Instr >>> 8;
                     RegDest = RegDest & 0b0000000000001111;
                     RegAddrMemory = Instr & 0b0000000011111111;
+                    System.out.println(RegAddrMemory);
                     PC++;
             }
             else if (InstrType == 9)
@@ -94,6 +96,7 @@ public class MaquinaVirtual{
     }
     public void execute()
     {
+        
             if (InstrType == 1)
             {
                     // Soma
@@ -105,18 +108,18 @@ public class MaquinaVirtual{
                     // Subtracao
                     Reg[RegDest] = Reg[RegSourceA] - Reg[RegSourceB];
             }
-            /*
             else if (InstrType == 8)
             {
                     // Load
-                    Reg[RegDest] = dadosp[RegAddrMemory];
+                    Reg[RegDest] = dadosd[RegAddrMemory];
+                    System.out.println(Reg[RegDest]);
             }
             else if (InstrType == 9)
             {
                     // Store
-                    DataMemory[RegAddrMemory] = Reg[RegSourceA];
+                    dadosd[RegAddrMemory] = Reg[RegDest];
             }
-            */
+            
     }
      public static void main(String[] args) throws IOException {
         MaquinaVirtual obj = new MaquinaVirtual();
@@ -127,9 +130,10 @@ public class MaquinaVirtual{
              System.out.println(obj.dadosp.get(i));
          }
         while(obj.PC<pcMax){
-             obj.get_instruction_type(obj.PC);
-             obj.decode();
-             obj.execute();
+            obj.dadosd[10]=4;
+            obj.get_instruction_type(obj.PC);
+            obj.decode();
+            obj.execute();
          }
         
         // TODO code application logic here
