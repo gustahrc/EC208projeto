@@ -5,86 +5,137 @@
  */
 package br.inatel.maquinavirtual.main;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Locale;
+
 /**
  *
  * @author joaop
  */
-public class MaquinaVirtual {
-
-    /**
-     * @param args the command line arguments
-     */
+public class MaquinaVirtual{
     
-    /********************************************************************************
+    
 
-    Máquina virtual IOT010
-
-            Este codigo implementa uma máquina virtual (interpretador) capaz de buscar,
-    decodificar e executar um set de instrucão criado exclusivamente para demostrações 
-    durante as aulas de IOT010.   
-
-    ***********************************************************************************
-
-    Detalhes do set de instrução
-
-            Tamanho das instruções: 16 bits
-
-            Código das intruções:
-
-                    ADD: 	0001
-                    SUB: 	0011
-                    LOAD: 	1000
-                    STORE:	1001
-
-            Instruções Tipo 1: 
-
-                    - Utilizado para operaçções aritméticas (soma, subtração, ...)
-
-                 MSB                                      LSB
-
-                    (Tipo instr.) (End. Reg 1) (End. Reg 2) (End Reg Dest.)
-
-               4 bits        4 bits        4 bits       4 bits
+    // Memoria de programa            
+     public int[] ProgMemory = {0b1000000000000000, 0b1000000100000001, 0b0001000000010010, 0b1001001000000010};
+    // Memoria de dados
+    //public int[] DataMemory = {1, 2, 0, 0, 0, 0, 0, 0};
 
 
-             - Exemplo: 0b0001000000010010 >>> |0001|0000|0001|0010
+    // Registradores
+    public int PC;
+    public int i;
+    public int[] Reg = new int[10];
+    public int Instr;
+    public int InstrType;
+    public int RegSourceA;
+    public int RegSourceB;
+    public int RegDest;
+    public int RegAddrMemory;
+    ArrayList<String> dadosp = new ArrayList<String>();
+    ArrayList<String> dadosd = new ArrayList<String>();
 
-                            Realiza a soma (0001 >> tipo da instrução) do registro 0 (0000 
-                             >> end. Reg 1) com o registro 1 (0001 >> end. Reg 2) e salva o resultado
-                             em registro 2 (0010 >> end. Reg Dest.)
-
-
-        Instruções Tipo 2:
-
-             - Uitlizado para operações de LOAD e STORE
-
-                   MSB                        LSB
-
-             (Tipo instr.) (End Reg) (End Memória de dados)
-
-                        4 bits       4 bits        8 bits
-
-               - Exemplo: 0b1000000000010010 >>> |1000|0000|00001010
-
-                            Realiza o LOAD (1000 >> tipo da instrução) do endereço de 
-                            memória 10 (00001010 >> end. Memória) para o registro 0 
-                            (0000 >> end. Reg )
- 	 	 	 
-    ********************************************************************************/
-
-
-    public static void main(String[] args) {
-        byte i;
-        Maquina maquinaVirtual = new Maquina();
-
-	while (maquinaVirtual.PC < 4)
-	{
-		maquinaVirtual.Instr = maquinaVirtual.ProgMemory[maquinaVirtual.PC]; // busca da instrução
-		maquinaVirtual.PC = maquinaVirtual.PC + 1;
-		maquinaVirtual.decode(); // decodificação
-		maquinaVirtual.execute();
-	}
-
+    public void get_instruction_type(int PC){
+        String instrucao = dadosp.get(PC);
+        Instr = new BigInteger(instrucao,2).intValue();
+        InstrType = Instr  >>> 12;
     }
     
-}
+    public void arrayInstruction() throws IOException{
+        // cria o arquivo se ainda não existir
+        InputStream isp = new FileInputStream("arquitetura.txt");
+        InputStreamReader isrp = new InputStreamReader(isp);
+        BufferedReader brp = new BufferedReader(isrp);
+        String linhap;
+        while ((linhap = brp.readLine()) != null)  {
+                  dadosp.add(linhap);  
+        }        
+    }
+    // Prototipos
+    public void decode()
+    {
+            System.out.println(InstrType);
+            if (InstrType == 1 || InstrType == 3)
+            {
+                    // Soma, Subtracao
+                    RegSourceA = Instr >>> 8;
+                    RegSourceA = RegSourceA & 0b0000000000001111;
+                    RegSourceB = Instr >>> 4;
+                    RegSourceB = RegSourceB & 0b0000000000001111;
+                    RegDest = Instr & 0b0000000000001111;
+                    System.out.println(RegDest);
+                    PC++;
+            }
+            else if (InstrType == 8)
+            {
+                    /* Load */
+                    RegDest = Instr >>> 8;
+                    RegDest = RegDest & 0b0000000000001111;
+                    RegAddrMemory = Instr & 0b0000000011111111;
+                    PC++;
+            }
+            else if (InstrType == 9)
+            {
+                    /* Store */
+                    RegSourceA = Instr >>> 8;
+                    RegSourceA = RegSourceA & 0b0000000000001111;
+                    RegAddrMemory = Instr & 0b0000000011111111;
+                    PC++;
+            }
+    }
+    public void execute()
+    {
+            if (InstrType == 1)
+            {
+                    // Soma
+                    Reg[RegDest] = Reg[RegSourceA] + Reg[RegSourceB];
+                    System.out.println(Reg[RegDest]);
+            }
+            else if (InstrType == 3)
+            {
+                    // Subtracao
+                    Reg[RegDest] = Reg[RegSourceA] - Reg[RegSourceB];
+            }
+            /*
+            else if (InstrType == 8)
+            {
+                    // Load
+                    Reg[RegDest] = dadosp[RegAddrMemory];
+            }
+            else if (InstrType == 9)
+            {
+                    // Store
+                    DataMemory[RegAddrMemory] = Reg[RegSourceA];
+            }
+            */
+    }
+     public static void main(String[] args) throws IOException {
+        MaquinaVirtual obj = new MaquinaVirtual();
+        obj.arrayInstruction();
+        obj.PC=0;
+        int pcMax=obj.dadosp.size();
+         for (int i = 0; i < pcMax; i++) {
+             System.out.println(obj.dadosp.get(i));
+         }
+        while(obj.PC<pcMax){
+             obj.get_instruction_type(obj.PC);
+             obj.decode();
+             obj.execute();
+         }
+        
+        // TODO code application logic here
+    }
+         
+         
+     }
+    
+
