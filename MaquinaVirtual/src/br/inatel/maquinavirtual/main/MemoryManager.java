@@ -21,8 +21,6 @@ public class MemoryManager {
     MemoryManager() throws IOException{
         MemoryManager.cache = cacheFile.readFile();
         MemoryManager.memory = memoryFile.readFile();
-        System.out.println(cache);
-        System.out.println(memory);
 //        initCache();
     }
     
@@ -59,23 +57,33 @@ public class MemoryManager {
         //System.out.println("Push " + address);
         
         for (Memory m : MemoryManager.memory){
-            //System.out.println("Endereco Memoria" + m.getAddress() + " - Endereco pesquisado " + address);
+            System.out.println("Endereco Memoria" + m.getAddress() + " - Endereco pesquisado " + address);
             if(m.getAddress() != null && address != null){
                 if(m.getAddress().equals(address)){
-                    for (Memory c : MemoryManager.cache) {
-                        if(c.getAddress().equals(m.getAddress())){
-                            c = m;
-                            c.setValid(true);
-                            System.out.println("Endereço " + address + " foi atualizado!");
-                            //cacheFile.saveMemoryFile(MemoryManager.cache);
-                            return;
-                        }else {
-                            System.out.println("Endereço " + m.getAddress() + " foi atualizado!");
-                            m.setValid(true);
-                            MemoryManager.cache.add(m);
-                            //cacheFile.saveMemoryFile(MemoryManager.cache);
-                            return;
+                    if(MemoryManager.cache.size() > 0) {
+                        int indexCache = 0;
+                        for (Memory c : MemoryManager.cache) {
+                            if(c.getAddress().equals(m.getAddress())){
+                                c = m;
+                                c.setValid(true);
+                                MemoryManager.cache.set(indexCache, c);
+                                System.out.println("Endereço " + address + " foi atualizado!");
+//                                cacheFile.saveMemoryFile(MemoryManager.cache);
+                                return;
+                            }
+                            if(indexCache == MemoryManager.cache.size()){ //Não está na Cache
+                                System.out.println("Endereço " + m.getAddress() + " foi adicionado!");
+                                m.setValid(true);
+                                MemoryManager.cache.add(m);
+//                                cacheFile.saveMemoryFile(MemoryManager.cache);
+                                return;
+                            }
+                            indexCache++;
                         }
+                    }else {
+                        MemoryManager.cache.add(m);
+//                        cacheFile.saveMemoryFile(MemoryManager.cache);
+                        return;
                     }
 
                 }
@@ -101,13 +109,14 @@ public class MemoryManager {
             if( c.getAddress().equals(address) && c.isValid()){
                 mem = c;
                 System.out.println("Hit =)");
-                System.out.println("Valor: " + mem.getData());
+                System.out.println("Endereço: " + mem.getData() + " - Valor: " + mem.getData());
                 return mem.getData();
             }
         }
     
         System.out.println("Miss =(");
         pushToCache(address);
+        cacheFile.saveMemoryFile(MemoryManager.cache);
         
         for (Memory c : MemoryManager.cache) {
             if(c.getAddress().equals(address) && c.isValid()){
@@ -128,17 +137,22 @@ public class MemoryManager {
         address = "00000000".substring(address.length()) + address;
         data = "00000000".substring(data.length()) + data;
         
+        int indexMem = 0;
+        
         for (Memory m : MemoryManager.memory){
             if(m.getAddress().equals(address)){
                 m.setData(data); //atualiza o dado da memória
+                MemoryManager.memory.set(indexMem, m);
                 break;
-            }else {
+            }
+            if(indexMem == MemoryManager.cache.size()){ //Não está na Cache
                 tempMemory = new Memory();
                 tempMemory.setAddress(address);
                 tempMemory.setData(data);
                 memory.add(tempMemory);
                 break;
             }
+            indexMem++;
         }
         
         for (Memory c : MemoryManager.cache) {
