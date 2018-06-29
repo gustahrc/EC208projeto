@@ -178,12 +178,15 @@ public class MaquinaVirtual{
                 break;
             case 8:
                 // Load
-                System.out.println(RegAddrMemoryString);
+                //System.out.println(RegAddrMemoryString);
                 if(memoryManager.getData(RegAddrMemoryString) == null || RegAddrMemoryString == null)
                     break;
+                if("".equals(memoryManager.getData(RegAddrMemoryString).trim()))
+                    break;
                 
-                System.out.println(RegAddrMemoryString);
-                Reg[RegDest] = Integer.valueOf(memoryManager.getData(RegAddrMemoryString).trim());
+                int loadMemory = Integer.parseInt(memoryManager.getData(RegAddrMemoryString).trim(), 2);
+                //System.out.println(RegAddrMemoryString);
+                Reg[RegDest] = loadMemory;
                 //Reg[RegDest] = dadosd[RegAddrMemory];
                 break;
             case 9:

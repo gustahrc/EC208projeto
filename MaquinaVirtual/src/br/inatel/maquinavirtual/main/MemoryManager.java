@@ -15,26 +15,26 @@ import java.util.ArrayList;
 public class MemoryManager {
     static FileManager cacheFile = new FileManager("cache.txt");
     static FileManager memoryFile = new FileManager("memory.txt");
-    protected ArrayList<Memory> cache = new ArrayList<>();
-    protected ArrayList<Memory> memory = new ArrayList<>();
+    protected static ArrayList<Memory> cache = new ArrayList<>();
+    protected static ArrayList<Memory> memory = new ArrayList<>();
     
     MemoryManager() throws IOException{
-        this.cache = cacheFile.readFile();
-        this.memory = memoryFile.readFile();
-        initCache();
+        MemoryManager.cache = cacheFile.readFile();
+        MemoryManager.memory = memoryFile.readFile();
+//        initCache();
     }
     
-    protected void initCache() throws IOException{
-        Memory tmpCache;
-        for(int i = 0; i < 200; i++){
-            tmpCache = new Memory();
-            tmpCache.setValid(false);
-            tmpCache.setAddress("00000000".substring(Integer.toBinaryString(i).length()) + Integer.toBinaryString(i));
-            tmpCache.setData("00000000");
-            this.cache.add(tmpCache);
-        }
-        cacheFile.saveMemoryFile(cache);
-    }
+//    protected void initCache() throws IOException{
+//        Memory tmpCache;
+//        for(int i = 0; i < 200; i++){
+//            tmpCache = new Memory();
+//            tmpCache.setValid(false);
+//            tmpCache.setAddress("00000000".substring(Integer.toBinaryString(i).length()) + Integer.toBinaryString(i));
+//            tmpCache.setData("00000000");
+//            this.cache.add(tmpCache);
+//        }
+//        cacheFile.saveMemoryFile(cache);
+//    }
     
 //    public void updateMemory(int address){
 //        
@@ -49,20 +49,30 @@ public class MemoryManager {
 //    }
     
     public void pushToCache(String address) throws IOException{
-        this.cache = cacheFile.readFile();
-        this.memory = memoryFile.readFile();
+        //MemoryManager.cache = cacheFile.readFile();
+        //MemoryManager.memory = memoryFile.readFile();
         
-        for (Memory m : memory){
+        address = "00000000".substring(address.length()) + address;
+        
+        //System.out.println("Push " + address);
+        
+        for (Memory m : MemoryManager.memory){
+            //System.out.println("Endereco Memoria" + m.getAddress() + " - Endereco pesquisado " + address);
             if(m.getAddress() != null && address != null){
                 if(m.getAddress().equals(address)){
 
-                    for (Memory c : cache) {
-                        if(c.getAddress() == null ? address == null : c.getAddress().equals(address)){
+                    for (Memory c : MemoryManager.cache) {
+                        if(c.getAddress().equals(m.getAddress())){
                             c = m;
                             c.setValid(true);
                             System.out.println("Endereço " + address + " foi atualizado!");
-                            cacheFile.saveMemoryFile(cache);
-                            break;
+                            //cacheFile.saveMemoryFile(MemoryManager.cache);
+                            return;
+                        }else {
+                            System.out.println("Endereço " + m.getAddress() + " foi atualizado!");
+                            MemoryManager.cache.add(m);
+                            //cacheFile.saveMemoryFile(MemoryManager.cache);
+                            return;
                         }
                     }
 
@@ -74,13 +84,14 @@ public class MemoryManager {
     }
     
     public String getData(String address) throws IOException{
-        this.cache = cacheFile.readFile();
-        this.memory = memoryFile.readFile();
+        //MemoryManager.cache = cacheFile.readFile();
+        //MemoryManager.memory = memoryFile.readFile();
+        address = "00000000".substring(address.length()) + address;
         
         Memory mem = new Memory();
         
-        for (Memory c : cache) {
-            if((c.getAddress() == null ? address == null : c.getAddress().equals(address)) && c.isValid()){
+        for (Memory c : MemoryManager.cache) {
+            if( c.getAddress().equals(address) && c.isValid()){
                 mem = c;
                 System.out.println("Hit =)");
                 System.out.println("Valor: " + mem.getData());
@@ -92,8 +103,8 @@ public class MemoryManager {
         
         pushToCache(address);
         
-        for (Memory c : cache) {
-            if((c.getAddress() == null ? address == null : c.getAddress().equals(address)) && c.isValid()){
+        for (Memory c : MemoryManager.cache) {
+            if(c.getAddress().equals(address) && c.isValid()){
                 mem = c;
                 System.out.println("Valor: " + mem.getData());
                 return mem.getData();
@@ -104,23 +115,35 @@ public class MemoryManager {
         return mem.getData();
     }
     public void saveData(String address, String data) throws IOException{
-        this.cache = cacheFile.readFile();
-        this.memory = memoryFile.readFile();
+        //MemoryManager.cache = cacheFile.readFile();
+        //MemoryManager.memory = memoryFile.readFile();
+        Memory tempMemory;
         
-        for (Memory m : memory){
-            if(m.getAddress() == null ? address == null : m.getAddress().equals(address)){
-                m.setAddress(address); //atualiza o dado da memória
+        address = "00000000".substring(address.length()) + address;
+        data = "00000000".substring(data.length()) + data;
+        
+        for (Memory m : MemoryManager.memory){
+            if(m.getAddress().equals(address)){
+                m.setData(data); //atualiza o dado da memória
+                break;
+            }else {
+                tempMemory = new Memory();
+                tempMemory.setAddress(address);
+                tempMemory.setData(data);
+                memory.add(tempMemory);
+                break;
             }
         }
         
-        for (Memory c : cache) {
-            if(c.getAddress() == null ? address == null : c.getAddress().equals(address)){
+        for (Memory c : MemoryManager.cache) {
+            if(c.getAddress().equals(address)){
                 c.setValid(false); //invalida a linha da cache
+                break;
             }
         }
         
-        cacheFile.saveMemoryFile(cache);
-        memoryFile.saveMemoryFile(memory);
+        cacheFile.saveMemoryFile(MemoryManager.cache);
+        memoryFile.saveMemoryFile(MemoryManager.memory);
     }
     
     

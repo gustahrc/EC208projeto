@@ -19,6 +19,12 @@ public class Memory {
 //        this.tag = tag;
 //        this.data = data;
 //    }
+    
+    Memory(){
+        this.address = "";
+        this.valid = false;
+        this.data = "";
+    }
 
     public boolean isValid() {
         return valid;
@@ -33,7 +39,8 @@ public class Memory {
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.address = "00000000".substring(address.length()) + address;
+        //this.address = address;
     }
 
     public String getData() {
@@ -41,7 +48,8 @@ public class Memory {
     }
 
     public void setData(String data) {
-        this.data = data;
+        this.data = "00000000".substring(data.length()) + data;
+        //this.data = data;
     }
     
     

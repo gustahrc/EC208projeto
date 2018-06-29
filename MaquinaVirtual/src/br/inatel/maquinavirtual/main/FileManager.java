@@ -43,8 +43,14 @@ public class FileManager {
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         String linha;
-        while ((linha = br.readLine()) != null) {
-            fileArray.add(linha);
+        linha = br.readLine();
+        
+        if(linha != null) {
+            while (linha != null) {
+                fileArray.add(linha);
+                linha = br.readLine();
+            }
+        
         }
 
         return fileArray;
@@ -59,16 +65,25 @@ public class FileManager {
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         String linha;
-        while ((linha = br.readLine()) != null) {
-            
-            if(linha.length() == 15 || linha.length() == 16){
-                data.setValid(linha.substring(1).equals("1"));
-                data.setAddress(linha.substring(1, 9)); //Binário para inteiro
-                data.setData(linha.substring(9, 16)); //Binário para inteiro
-                
-                
+        
+        linha = br.readLine();
+        
+        if(linha != null) {
+            while (linha != null) {
+                if(linha.length() == 17){
+//                    System.out.println("Valid " + linha.substring(0, 1).equals("1"));
+//                    System.out.println("Address " + linha.substring(1, 9));
+//                    System.out.println("Data " + linha.substring(9, 17));
 
-                fileArray.add(data);
+                    data.setValid(linha.substring(1).equals("1"));
+                    data.setAddress(linha.substring(1, 9)); //Binário para inteiro
+                    data.setData(linha.substring(9, 16)); //Binário para inteiro
+
+
+
+                    fileArray.add(data);
+                }
+                linha = br.readLine();
             }
         }
 
@@ -77,10 +92,11 @@ public class FileManager {
 
     protected void saveMemoryFile(ArrayList<Memory> memoryArray) throws IOException {
         String line;
-
-        OutputStream os = new FileOutputStream(file);
+        int i = 0;
+        OutputStream os = new FileOutputStream(file, false);
         OutputStreamWriter osw = new OutputStreamWriter(os, "utf-8");
         try (BufferedWriter bw = new BufferedWriter(osw)) {
+            
             for (Memory m : memoryArray) {
 
                 line = "";
@@ -93,6 +109,8 @@ public class FileManager {
                 }
                 line += m.getAddress();
                 line += m.getData();
+                i++;
+                //System.out.println("Linha- " + i + " " + line);
 
                 bw.write(line + "\n");
 
