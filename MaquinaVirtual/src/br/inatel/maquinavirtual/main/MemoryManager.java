@@ -21,6 +21,8 @@ public class MemoryManager {
     MemoryManager() throws IOException{
         MemoryManager.cache = cacheFile.readFile();
         MemoryManager.memory = memoryFile.readFile();
+        System.out.println(cache);
+        System.out.println(memory);
 //        initCache();
     }
     
@@ -60,7 +62,6 @@ public class MemoryManager {
             //System.out.println("Endereco Memoria" + m.getAddress() + " - Endereco pesquisado " + address);
             if(m.getAddress() != null && address != null){
                 if(m.getAddress().equals(address)){
-
                     for (Memory c : MemoryManager.cache) {
                         if(c.getAddress().equals(m.getAddress())){
                             c = m;
@@ -70,6 +71,7 @@ public class MemoryManager {
                             return;
                         }else {
                             System.out.println("Endereço " + m.getAddress() + " foi atualizado!");
+                            m.setValid(true);
                             MemoryManager.cache.add(m);
                             //cacheFile.saveMemoryFile(MemoryManager.cache);
                             return;
@@ -87,10 +89,15 @@ public class MemoryManager {
         //MemoryManager.cache = cacheFile.readFile();
         //MemoryManager.memory = memoryFile.readFile();
         address = "00000000".substring(address.length()) + address;
-        
+        System.out.println(address);
         Memory mem = new Memory();
-        
         for (Memory c : MemoryManager.cache) {
+//            System.out.println("---  Printando comparado 1 ---");
+//            System.out.println(c.getAddress());
+//            System.out.println("---  Printando comparado 2 ---");
+//            System.out.println(address);
+//            System.out.println("----- printando validacao ---");
+//            System.out.println(c.isValid());
             if( c.getAddress().equals(address) && c.isValid()){
                 mem = c;
                 System.out.println("Hit =)");
@@ -98,9 +105,8 @@ public class MemoryManager {
                 return mem.getData();
             }
         }
-        
+    
         System.out.println("Miss =(");
-        
         pushToCache(address);
         
         for (Memory c : MemoryManager.cache) {
